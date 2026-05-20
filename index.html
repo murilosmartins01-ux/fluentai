@@ -1,558 +1,921 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>FluentAI — Aprenda Inglês com IA</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>FluentAI — Fale Inglês de Verdade</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #0A0A0F; font-family: 'Plus Jakarta Sans', 'DM Sans', system-ui, sans-serif; }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; overflow: hidden; }
+    body { background: #080810; font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif; color: #F0EFF8; overscroll-behavior: none; }
+    #root { height: 100%; display: flex; justify-content: center; }
     ::-webkit-scrollbar { display: none; }
-    @keyframes bounce {
-      0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
-      40% { transform: scale(1); opacity: 1; }
-    }
+    * { scrollbar-width: none; -ms-overflow-style: none; }
+    input, button, textarea { font-family: inherit; }
+    input::placeholder { color: #4A4868; }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes scaleIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+    @keyframes pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    @keyframes bounce { 0%,80%,100% { transform: translateY(0); opacity: 0.4; } 40% { transform: translateY(-6px); opacity: 1; } }
+    @keyframes glow { 0%,100% { box-shadow: 0 0 20px rgba(108,99,255,0.3); } 50% { box-shadow: 0 0 40px rgba(108,99,255,0.6); } }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes xpPop { 0% { transform: scale(0) translateY(0); opacity: 1; } 100% { transform: scale(1.2) translateY(-40px); opacity: 0; } }
+    @keyframes streakFire { 0%,100% { transform: scaleY(1) rotate(-2deg); } 50% { transform: scaleY(1.1) rotate(2deg); } }
+    @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes confetti { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(-200px) rotate(720deg); opacity: 0; } }
+
+    .fade-up { animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .fade-in { animation: fadeIn 0.4s ease both; }
+    .scale-in { animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .slide-up { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+    .btn-primary { transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .btn-primary:active { transform: scale(0.97); }
+    .card-hover { transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+    .card-hover:active { transform: scale(0.98); }
+
+    .gradient-text { background: linear-gradient(135deg, #A78BFA, #6C63FF, #4FACFE); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .gradient-text-gold { background: linear-gradient(135deg, #F5C542, #FFD700, #FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+    .xp-bar-inner { transition: width 1s cubic-bezier(0.16, 1, 0.3, 1); }
+    .glow-purple { animation: glow 2s ease-in-out infinite; }
+    .streak-fire { animation: streakFire 0.8s ease-in-out infinite; }
+    .pulse { animation: pulse 2s ease-in-out infinite; }
+
+    .glass { background: rgba(255,255,255,0.04); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+    .glass-dark { background: rgba(0,0,0,0.3); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.06); }
+
+    .shimmer { background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%); background-size: 200% 100%; animation: shimmer 2s infinite; }
+
+    .nav-item { transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .nav-item:active { transform: scale(0.92); }
+
+    .record-btn { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+    .record-btn:active { transform: scale(0.95); }
+    .recording { animation: glow 1s ease-in-out infinite; }
+
+    .option-btn { transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .option-btn:active { transform: scale(0.98); }
   </style>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 </head>
 <body>
-  <div id="root"></div>
-  <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
 
-    const COLORS = {
-      bg: "#0A0A0F", surface: "#12121A", surfaceLight: "#1A1A28",
-      border: "#2A2A3D", accent: "#6C63FF", accentLight: "#8B85FF",
-      accentGlow: "rgba(108,99,255,0.15)", gold: "#F5C542", green: "#22D3A0",
-      coral: "#FF6B6B", blue: "#4FACFE", text: "#F0EFF8",
-      textMuted: "#8884A8", textFaint: "#4A4868",
-    };
+// ============================================================
+// DESIGN TOKENS — FluentAI Design System v2.0
+// ============================================================
+const DS = {
+  colors: {
+    bg: '#080810', bgAlt: '#0D0D1A', bgCard: '#111120',
+    surface: '#14142A', surfaceHover: '#1A1A35',
+    border: 'rgba(255,255,255,0.07)', borderStrong: 'rgba(255,255,255,0.12)',
+    accent: '#6C63FF', accentLight: '#A78BFA', accentDark: '#4F46E5',
+    accentGlow: 'rgba(108,99,255,0.25)',
+    gold: '#F5C542', goldLight: '#FFE066', goldGlow: 'rgba(245,197,66,0.2)',
+    green: '#10B981', greenLight: '#34D399', greenGlow: 'rgba(16,185,129,0.2)',
+    coral: '#F87171', coralGlow: 'rgba(248,113,113,0.2)',
+    blue: '#38BDF8', blueGlow: 'rgba(56,189,248,0.2)',
+    purple: '#A78BFA', pink: '#F472B6',
+    text: '#F8F7FF', textSoft: '#C4C2D9', textMuted: '#7A789A', textFaint: '#3D3B58',
+  },
+  radius: { sm: 10, md: 16, lg: 20, xl: 24, xxl: 32, full: 9999 },
+  space: { xs: 4, sm: 8, md: 12, lg: 16, xl: 20, xxl: 24, xxxl: 32 },
+  font: { xs: 11, sm: 13, md: 15, lg: 17, xl: 20, xxl: 24, xxxl: 32, hero: 42 },
+};
 
-    const lessons = [
-      { id: 1, title: "Greetings & Introductions", phase: "Foundation", icon: "👋", xp: 50, duration: "5 min", completed: true, locked: false },
-      { id: 2, title: "Numbers & Time", phase: "Foundation", icon: "🕐", xp: 50, duration: "5 min", completed: true, locked: false },
-      { id: 3, title: "Everyday Objects", phase: "Foundation", icon: "🏠", xp: 75, duration: "8 min", completed: false, locked: false, current: true },
-      { id: 4, title: "Simple Present Tense", phase: "Foundation", icon: "⚡", xp: 75, duration: "8 min", completed: false, locked: true },
-      { id: 5, title: "Daily Routines", phase: "Communication", icon: "☀️", xp: 100, duration: "10 min", completed: false, locked: true },
-      { id: 6, title: "Travel & Transport", phase: "Communication", icon: "✈️", xp: 100, duration: "10 min", completed: false, locked: true },
-    ];
+// ============================================================
+// DATA
+// ============================================================
+const PHASES = [
+  { id: 1, name: 'Foundation', color: DS.colors.green, emoji: '🌱', desc: 'Sobrevivência e básico' },
+  { id: 2, name: 'Communication', color: DS.colors.blue, emoji: '💬', desc: 'Diálogos do cotidiano' },
+  { id: 3, name: 'Fluency', color: DS.colors.accent, emoji: '🚀', desc: 'Conversação real' },
+  { id: 4, name: 'Advanced Mind', color: DS.colors.gold, emoji: '⚡', desc: 'Inglês nativo' },
+];
 
-    const achievements = [
-      { id: 1, title: "First Step", desc: "Complete your first lesson", icon: "🌱", earned: true },
-      { id: 2, title: "On Fire", desc: "7-day streak", icon: "🔥", earned: true },
-      { id: 3, title: "Chatterbox", desc: "10 speaking sessions", icon: "🎙️", earned: false },
-      { id: 4, title: "Wordsmith", desc: "Learn 100 words", icon: "📚", earned: false },
-    ];
+const LESSONS = [
+  { id: 1, title: 'Greetings & Introductions', phase: 1, icon: '👋', xp: 50, dur: '5 min', done: true },
+  { id: 2, title: 'Numbers & Time', phase: 1, icon: '🕐', xp: 50, dur: '5 min', done: true },
+  { id: 3, title: 'Everyday Objects', phase: 1, icon: '🏠', xp: 75, dur: '8 min', current: true },
+  { id: 4, title: 'Simple Present Tense', phase: 1, icon: '⚡', xp: 75, dur: '8 min', locked: true },
+  { id: 5, title: 'Daily Routines', phase: 2, icon: '☀️', xp: 100, dur: '10 min', locked: true },
+  { id: 6, title: 'Travel & Transport', phase: 2, icon: '✈️', xp: 100, dur: '10 min', locked: true },
+];
 
-    const rankingData = [
-      { rank: 1, name: "Ana Lima", xp: 4820, avatar: "AL" },
-      { rank: 2, name: "Carlos M.", xp: 4210, avatar: "CM" },
-      { rank: 3, name: "João P.", xp: 3990, avatar: "JP" },
-      { rank: 4, name: "Você", xp: 3740, avatar: "EU", isUser: true },
-      { rank: 5, name: "Maria S.", xp: 3500, avatar: "MS" },
-    ];
+const QUIZ = [
+  { q: "Complete: 'I ___ coffee every morning.'", opts: ['drink', 'drinks', 'am drink', 'drinking'], correct: 0, exp: "Com 'I' usamos a forma base do verbo. 'I drink' — simples assim!" },
+  { q: "Which sounds most natural?", opts: ['I go every day to the gym.', 'I go to the gym every day.', 'Every day I the gym go.', 'To the gym I go every day.'], correct: 1, exp: "Em inglês o advérbio de frequência vem no final: 'I go to the gym every day.'" },
+  { q: "What does 'schedule' mean?", opts: ['Agenda / Horário', 'Viagem', 'Reunião urgente', 'Lista de compras'], correct: 0, exp: "'Schedule' é sua agenda de compromissos — 'Can we schedule a call?' = Podemos agendar uma ligação?" },
+];
 
-    const vocabCards = [
-      { word: "Schedule", sentence: "I need to check my schedule for tomorrow.", translation: "Agenda / Cronograma", emoji: "📅" },
-      { word: "Opportunity", sentence: "This is a great opportunity to improve.", translation: "Oportunidade", emoji: "🚀" },
-      { word: "Challenge", sentence: "Every challenge makes you stronger.", translation: "Desafio", emoji: "💪" },
-    ];
+const VOCAB = [
+  { word: 'Schedule', sent: 'Can we schedule a call for tomorrow morning?', pt: 'Agenda / Agendar', ipa: '/ˈʃɛdjuːl/', emoji: '📅', lvl: 'B1' },
+  { word: 'Opportunity', sent: "This is a huge opportunity — don't miss it.", pt: 'Oportunidade', ipa: '/ˌɒpəˈtjuːnɪti/', emoji: '🚀', lvl: 'B1' },
+  { word: 'Challenge', sent: 'Every challenge makes you stronger.', pt: 'Desafio', ipa: '/ˈtʃælɪndʒ/', emoji: '💪', lvl: 'A2' },
+  { word: 'Fluent', sent: "She's fluent in three languages.", pt: 'Fluente', ipa: '/ˈfluːənt/', emoji: '🌊', lvl: 'B2' },
+];
 
-    const shadowingPhrases = [
-      { text: "I usually wake up at seven in the morning.", phonetic: "aɪ ˈjuːʒuəli weɪk ʌp æt ˈsevən ɪn ðə ˈmɔːrnɪŋ" },
-      { text: "Could you help me find the nearest station?", phonetic: "kʊd juː help miː faɪnd ðə ˈnɪərɪst ˈsteɪʃən" },
-    ];
+const RANKING = [
+  { rank: 1, name: 'Ana Lima', xp: 4820, avatar: 'AL', badge: '🥇' },
+  { rank: 2, name: 'Carlos M.', xp: 4210, avatar: 'CM', badge: '🥈' },
+  { rank: 3, name: 'João P.', xp: 3990, avatar: 'JP', badge: '🥉' },
+  { rank: 4, name: 'Você', xp: 0, avatar: 'EU', isUser: true },
+  { rank: 5, name: 'Maria S.', xp: 3500, avatar: 'MS' },
+];
 
-    const lessonQuestions = [
-      { question: "Complete: 'I ___ a cup of coffee every morning.'", options: ["have", "has", "am", "is"], correct: 0, explanation: "Com 'I', usamos sempre 'have' — não 'has'. 'Has' é para he/she/it." },
-      { question: "Which sentence sounds most natural?", options: ["I drink every day coffee.", "I drink coffee every day.", "Every day I coffee drink.", "Coffee I drink every day."], correct: 1, explanation: "Em inglês, 'every day' vem no final da frase." },
-      { question: "What does 'schedule' mean?", options: ["Horário / Agenda", "Trabalho", "Reunião", "Plano secreto"], correct: 0, explanation: "'Schedule' significa agenda ou horário — um plano de como você vai usar seu tempo." },
-    ];
+const ACHIEVEMENTS = [
+  { id: 1, icon: '🌱', title: 'Primeiro Passo', desc: 'Completou a 1ª lição', earned: true, rarity: 'common' },
+  { id: 2, icon: '🔥', title: 'Em Chamas', desc: 'Streak de 7 dias', earned: true, rarity: 'rare' },
+  { id: 3, icon: '🎙️', title: 'Locutor', desc: '10 sessões de fala', earned: false, rarity: 'epic' },
+  { id: 4, icon: '💎', title: 'Diamante', desc: '30 dias seguidos', earned: false, rarity: 'legendary' },
+];
 
-    function XPBar({ current, max, color = COLORS.accent }) {
-      return (
-        <div style={{ height: 6, borderRadius: 10, background: COLORS.border, overflow: "hidden", marginTop: 6 }}>
-          <div style={{ height: "100%", width: `${Math.min((current / max) * 100, 100)}%`, background: `linear-gradient(90deg, ${color}, ${color}BB)`, borderRadius: 10, transition: "width 0.6s ease" }} />
+// ============================================================
+// COMPONENTS
+// ============================================================
+function Avatar({ initials, size = 40, gradient = true }) {
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: DS.radius.md,
+      background: gradient ? `linear-gradient(135deg, ${DS.colors.accent}, ${DS.colors.blue})` : DS.colors.surface,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontSize: size * 0.35, fontWeight: 700, color: '#fff', flexShrink: 0,
+      border: `1px solid ${DS.colors.borderStrong}`,
+    }}>{initials}</div>
+  );
+}
+
+function XPBar({ current, max, color = DS.colors.accent, height = 6, animated = true }) {
+  const pct = Math.min((current / max) * 100, 100);
+  return (
+    <div style={{ height, borderRadius: DS.radius.full, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+      <div className={animated ? 'xp-bar-inner' : ''} style={{
+        height: '100%', width: `${pct}%`, borderRadius: DS.radius.full,
+        background: `linear-gradient(90deg, ${color}, ${color}CC)`,
+      }}/>
+    </div>
+  );
+}
+
+function Badge({ children, color = DS.colors.accent, size = 'sm' }) {
+  const pad = size === 'sm' ? '3px 10px' : '5px 14px';
+  const fs = size === 'sm' ? 11 : 13;
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: 4,
+      padding: pad, borderRadius: DS.radius.full, fontSize: fs, fontWeight: 600,
+      background: color + '18', color, border: `1px solid ${color}30`, letterSpacing: 0.3,
+    }}>{children}</span>
+  );
+}
+
+function Card({ children, style = {}, glow = false, onClick, className = '' }) {
+  return (
+    <div className={`card-hover ${className}`} onClick={onClick} style={{
+      background: DS.colors.bgCard, borderRadius: DS.radius.xl,
+      border: `1px solid ${glow ? DS.colors.accent + '40' : DS.colors.border}`,
+      padding: DS.space.xl, marginBottom: DS.space.md, cursor: onClick ? 'pointer' : 'default',
+      boxShadow: glow ? `0 0 30px ${DS.colors.accentGlow}` : '0 4px 24px rgba(0,0,0,0.3)',
+      ...style,
+    }}>{children}</div>
+  );
+}
+
+function Btn({ children, variant = 'primary', onClick, disabled = false, style = {}, className = '' }) {
+  const variants = {
+    primary: { background: `linear-gradient(135deg, ${DS.colors.accent}, ${DS.colors.accentDark})`, color: '#fff', border: 'none', boxShadow: `0 8px 32px ${DS.colors.accentGlow}` },
+    secondary: { background: DS.colors.surface, color: DS.colors.textSoft, border: `1px solid ${DS.colors.border}` },
+    ghost: { background: 'transparent', color: DS.colors.textMuted, border: `1px solid ${DS.colors.border}` },
+    gold: { background: `linear-gradient(135deg, ${DS.colors.gold}, #E5A800)`, color: '#1A1200', border: 'none', boxShadow: `0 8px 24px ${DS.colors.goldGlow}` },
+    danger: { background: DS.colors.coralGlow, color: DS.colors.coral, border: `1px solid ${DS.colors.coral}30` },
+  };
+  return (
+    <button className={`btn-primary ${className}`} onClick={onClick} disabled={disabled} style={{
+      width: '100%', padding: '16px 20px', borderRadius: DS.radius.lg, fontSize: 16, fontWeight: 700,
+      cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.4 : 1,
+      letterSpacing: 0.2, transition: 'all 0.2s', ...variants[variant], ...style,
+    }}>{children}</button>
+  );
+}
+
+// ============================================================
+// SCREENS
+// ============================================================
+
+function Onboarding({ onFinish }) {
+  const [step, setStep] = useState(0);
+  const [name, setName] = useState('');
+  const [goal, setGoal] = useState('');
+  const [level, setLevel] = useState('');
+  const [time, setTime] = useState('');
+
+  const goals = [
+    { id: 'work', icon: '💼', label: 'Trabalho & Carreira', desc: 'Reuniões, e-mails, entrevistas' },
+    { id: 'travel', icon: '✈️', label: 'Viagens', desc: 'Comunicar em qualquer lugar' },
+    { id: 'fluency', icon: '🌊', label: 'Fluência Total', desc: 'Pensar e sonhar em inglês' },
+    { id: 'study', icon: '🎓', label: 'Estudos', desc: 'Intercâmbio, pós-graduação' },
+  ];
+
+  const levels = [
+    { id: 'zero', icon: '🌱', label: 'Iniciante', desc: 'Começo do zero' },
+    { id: 'basic', icon: '📖', label: 'Básico', desc: 'Sei algumas coisas' },
+    { id: 'inter', icon: '💬', label: 'Intermediário', desc: 'Entendo mas trava na fala' },
+    { id: 'adv', icon: '🚀', label: 'Avançado', desc: 'Quero fluência total' },
+  ];
+
+  const times = [
+    { id: '5', label: '5 min', desc: 'Bem corrido', icon: '⚡' },
+    { id: '10', label: '10 min', desc: 'Razoável', icon: '🎯' },
+    { id: '20', label: '20 min', desc: 'Comprometido', icon: '🔥' },
+    { id: '30', label: '30+ min', desc: 'Full dedicação', icon: '💎' },
+  ];
+
+  const xpMap = { zero: 0, basic: 400, inter: 1200, adv: 2800 };
+  const lvlMap = { zero: 1, basic: 4, inter: 9, adv: 15 };
+
+  const canNext = [name.trim(), goal, level, time][step];
+
+  const next = () => {
+    if (step < 3) setStep(s => s + 1);
+    else onFinish({ name, goal, level, time, xp: xpMap[level] || 0, lvl: lvlMap[level] || 1 });
+  };
+
+  const stepTitles = ["Como te chamo?", "Qual seu objetivo?", "Seu nível em inglês?", "Quanto tempo por dia?"];
+  const stepSubs = ["Vou personalizar tudo para você", "Vou criar sua trilha ideal", "Vou adaptar o conteúdo", "Vou montar sua meta diária"];
+
+  return (
+    <div className="fade-in" style={{ width: '100%', maxWidth: 430, height: '100%', background: DS.colors.bg, display: 'flex', flexDirection: 'column', padding: '0 20px', position: 'relative', overflow: 'hidden' }}>
+      {/* BG glow */}
+      <div style={{ position: 'absolute', top: -100, left: '50%', transform: 'translateX(-50%)', width: 400, height: 400, borderRadius: '50%', background: `radial-gradient(circle, ${DS.colors.accentGlow} 0%, transparent 70%)`, pointerEvents: 'none' }}/>
+
+      {/* Progress dots */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 8, paddingTop: 60, paddingBottom: 32 }}>
+        {[0,1,2,3].map(i => (
+          <div key={i} style={{ height: 4, borderRadius: 4, background: i <= step ? DS.colors.accent : DS.colors.border, width: i === step ? 24 : 8, transition: 'all 0.4s cubic-bezier(0.16,1,0.3,1)' }}/>
+        ))}
+      </div>
+
+      {step === 0 && (
+        <div className="fade-up" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div style={{ textAlign: 'center', marginBottom: 40 }}>
+            <div style={{ fontSize: 64, marginBottom: 20 }}>🇺🇸</div>
+            <h1 style={{ fontSize: DS.font.xxxl, fontWeight: 900, letterSpacing: -1, marginBottom: 8 }}>FluentAI</h1>
+            <p style={{ fontSize: DS.font.md, color: DS.colors.textMuted, lineHeight: 1.6 }}>A forma mais inteligente de aprender inglês</p>
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <p style={{ fontSize: DS.font.sm, color: DS.colors.textMuted, marginBottom: 10, fontWeight: 500 }}>Qual é o seu nome?</p>
+            <input value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && name.trim() && next()} placeholder="Digite seu nome..." autoFocus style={{ width: '100%', background: DS.colors.bgCard, border: `1px solid ${name ? DS.colors.accent + '60' : DS.colors.border}`, borderRadius: DS.radius.lg, padding: '16px 18px', fontSize: 16, color: DS.colors.text, outline: 'none', transition: 'border 0.2s' }}/>
+          </div>
         </div>
-      );
-    }
+      )}
 
-    function Pill({ children, color = COLORS.accent }) {
-      return <span style={{ display: "inline-block", padding: "4px 12px", borderRadius: 50, fontSize: 11, fontWeight: 600, background: color + "22", color, letterSpacing: 0.5 }}>{children}</span>;
-    }
+      {step === 1 && (
+        <div className="fade-up" style={{ flex: 1, overflowY: 'auto', paddingBottom: 20 }}>
+          <div style={{ marginBottom: 28 }}>
+            <h2 style={{ fontSize: DS.font.xxl, fontWeight: 800, marginBottom: 6 }}>Olá, {name}! 👋</h2>
+            <p style={{ fontSize: DS.font.sm, color: DS.colors.textMuted }}>Qual é seu principal objetivo?</p>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {goals.map(g => (
+              <div key={g.id} className="card-hover" onClick={() => setGoal(g.id)} style={{ background: goal === g.id ? DS.colors.accent + '18' : DS.colors.bgCard, borderRadius: DS.radius.lg, border: `2px solid ${goal === g.id ? DS.colors.accent : DS.colors.border}`, padding: '16px 18px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14, transition: 'all 0.2s' }}>
+                <span style={{ fontSize: 28 }}>{g.icon}</span>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: DS.font.md, fontWeight: 700, marginBottom: 2, color: goal === g.id ? DS.colors.accentLight : DS.colors.text }}>{g.label}</p>
+                  <p style={{ fontSize: DS.font.xs, color: DS.colors.textMuted }}>{g.desc}</p>
+                </div>
+                {goal === g.id && <span style={{ color: DS.colors.accent, fontSize: 20 }}>✓</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-    function FluentAI() {
-      const [screen, setScreen] = useState("onboarding");
-      const [onboardStep, setOnboardStep] = useState(0);
-      const [userName, setUserName] = useState("");
-      const [selectedLevel, setSelectedLevel] = useState("");
-      const [xp, setXp] = useState(0);
-      const [streak, setStreak] = useState(0);
-      const [level, setLevel] = useState(1);
-      const [chatInput, setChatInput] = useState("");
-      const [messages, setMessages] = useState([{ role: "ai", text: "Hey! I'm Aria, your English coach 🤖. Let's practice! How was your morning?" }]);
-      const [isLoading, setIsLoading] = useState(false);
-      const [currentVocab, setCurrentVocab] = useState(0);
-      const [cardFlipped, setCardFlipped] = useState(false);
-      const [shadowingActive, setShadowingActive] = useState(false);
-      const [lessonStep, setLessonStep] = useState(0);
-      const [selectedAnswer, setSelectedAnswer] = useState(null);
-      const [showResult, setShowResult] = useState(false);
-      const chatEndRef = useRef(null);
+      {step === 2 && (
+        <div className="fade-up" style={{ flex: 1, overflowY: 'auto', paddingBottom: 20 }}>
+          <div style={{ marginBottom: 28 }}>
+            <h2 style={{ fontSize: DS.font.xxl, fontWeight: 800, marginBottom: 6 }}>Seu inglês hoje</h2>
+            <p style={{ fontSize: DS.font.sm, color: DS.colors.textMuted }}>Vou adaptar o conteúdo para você</p>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {levels.map(l => (
+              <div key={l.id} className="card-hover" onClick={() => setLevel(l.id)} style={{ background: level === l.id ? DS.colors.accent + '18' : DS.colors.bgCard, borderRadius: DS.radius.lg, border: `2px solid ${level === l.id ? DS.colors.accent : DS.colors.border}`, padding: '16px 18px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14, transition: 'all 0.2s' }}>
+                <span style={{ fontSize: 28 }}>{l.icon}</span>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: DS.font.md, fontWeight: 700, marginBottom: 2, color: level === l.id ? DS.colors.accentLight : DS.colors.text }}>{l.label}</p>
+                  <p style={{ fontSize: DS.font.xs, color: DS.colors.textMuted }}>{l.desc}</p>
+                </div>
+                {level === l.id && <span style={{ color: DS.colors.accent, fontSize: 20 }}>✓</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-      useEffect(() => { chatEndRef.current && chatEndRef.current.scrollIntoView({ behavior: "smooth" }); }, [messages]);
+      {step === 3 && (
+        <div className="fade-up" style={{ flex: 1, overflowY: 'auto', paddingBottom: 20 }}>
+          <div style={{ marginBottom: 28 }}>
+            <h2 style={{ fontSize: DS.font.xxl, fontWeight: 800, marginBottom: 6 }}>Última pergunta ✨</h2>
+            <p style={{ fontSize: DS.font.sm, color: DS.colors.textMuted }}>Quanto tempo você tem por dia?</p>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
+            {times.map(t => (
+              <div key={t.id} className="card-hover" onClick={() => setTime(t.id)} style={{ background: time === t.id ? DS.colors.accent + '18' : DS.colors.bgCard, borderRadius: DS.radius.lg, border: `2px solid ${time === t.id ? DS.colors.accent : DS.colors.border}`, padding: '20px 16px', cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s' }}>
+                <div style={{ fontSize: 28, marginBottom: 8 }}>{t.icon}</div>
+                <p style={{ fontSize: DS.font.lg, fontWeight: 800, color: time === t.id ? DS.colors.accentLight : DS.colors.text, marginBottom: 4 }}>{t.label}</p>
+                <p style={{ fontSize: DS.font.xs, color: DS.colors.textMuted }}>{t.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-      const S = {
-        container: { background: COLORS.bg, minHeight: "100vh", color: COLORS.text, maxWidth: 430, margin: "0 auto", position: "relative" },
-        header: { padding: "16px 20px 12px", background: COLORS.bg, position: "sticky", top: 0, zIndex: 100, borderBottom: `1px solid ${COLORS.border}` },
-        card: { background: COLORS.surface, borderRadius: 20, border: `1px solid ${COLORS.border}`, padding: "20px", marginBottom: 16 },
-        scroll: { overflowY: "auto", padding: "16px 20px 100px" },
-        btn: (v = "primary") => ({ width: "100%", padding: "16px", borderRadius: 16, border: v === "ghost" ? `1px solid ${COLORS.border}` : "none", fontSize: 16, fontWeight: 700, cursor: "pointer", background: v === "primary" ? COLORS.accent : v === "ghost" ? "transparent" : COLORS.surface, color: v === "primary" ? "#fff" : COLORS.textMuted, transition: "all 0.2s" }),
-        tab: (active) => ({ flex: 1, padding: "10px 4px", background: active ? COLORS.accent : "transparent", border: "none", borderRadius: 12, color: active ? "#fff" : COLORS.textMuted, fontSize: 11, fontWeight: active ? 600 : 400, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }),
-      };
+      {/* CTA */}
+      <div style={{ paddingBottom: 40, paddingTop: 16 }}>
+        <Btn onClick={next} disabled={!canNext} className="glow-purple">
+          {step < 3 ? 'Continuar →' : '🚀 Começar minha jornada'}
+        </Btn>
+        {step > 0 && <button onClick={() => setStep(s => s - 1)} style={{ width: '100%', background: 'none', border: 'none', color: DS.colors.textMuted, fontSize: DS.font.sm, marginTop: 12, cursor: 'pointer', padding: 8 }}>← Voltar</button>}
+      </div>
+    </div>
+  );
+}
 
-      const BottomNav = () => (
-        <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 430, background: COLORS.bg, borderTop: `1px solid ${COLORS.border}`, padding: "8px 12px 16px", display: "flex", gap: 4, zIndex: 200 }}>
-          {[["home","🏠","Home"],["lessons","📚","Lições"],["chat","🤖","IA Chat"],["vocab","🃏","Vocab"],["ranking","🏆","Ranking"]].map(([id, icon, label]) => (
-            <button key={id} style={S.tab(screen === id)} onClick={() => setScreen(id)}>
-              <span style={{ fontSize: 19 }}>{icon}</span>
-              <span>{label}</span>
-            </button>
+function HomeScreen({ user, setUser, setScreen }) {
+  const [showXP, setShowXP] = useState(false);
+  const xpToNext = (user.lvl * 400);
+  const xpPct = (user.xp / xpToNext) * 100;
+
+  const goals = [
+    { label: 'Completar 1 lição', done: true, xp: 50 },
+    { label: 'Praticar speaking', done: false, xp: 75 },
+    { label: 'Revisar 5 palavras', done: false, xp: 25 },
+  ];
+  const doneCt = goals.filter(g => g.done).length;
+
+  return (
+    <div style={{ height: '100%', overflowY: 'auto', padding: '0 20px 100px' }}>
+      {/* Header */}
+      <div style={{ paddingTop: 56, paddingBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <p style={{ fontSize: DS.font.sm, color: DS.colors.textMuted, marginBottom: 4 }}>Bom dia, {user.name} 👋</p>
+            <h1 style={{ fontSize: DS.font.xxl, fontWeight: 900, letterSpacing: -0.5 }}>FluentAI</h1>
+          </div>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            <div className="glass" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: DS.radius.full }}>
+              <span className="streak-fire" style={{ fontSize: 18 }}>🔥</span>
+              <span style={{ fontWeight: 800, fontSize: DS.font.md, color: DS.colors.gold }}>{user.streak || 1}</span>
+            </div>
+            <Avatar initials={user.name.slice(0,2).toUpperCase()} size={44}/>
+          </div>
+        </div>
+      </div>
+
+      {/* Level Card */}
+      <div className="fade-up" style={{ background: `linear-gradient(135deg, ${DS.colors.accent}25, ${DS.colors.blue}15)`, borderRadius: DS.radius.xxl, border: `1px solid ${DS.colors.accent}30`, padding: DS.space.xxl, marginBottom: DS.space.md, position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: `radial-gradient(circle, ${DS.colors.accent}30, transparent)` }}/>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+          <div>
+            <Badge color={DS.colors.accentLight}>Nível {user.lvl}</Badge>
+            <h2 style={{ fontSize: DS.font.xl, fontWeight: 800, marginTop: 8 }}>
+              {user.lvl < 5 ? 'Beginner Explorer' : user.lvl < 10 ? 'Rising Communicator' : 'Fluency Seeker'}
+            </h2>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <p style={{ fontSize: DS.font.xs, color: DS.colors.textMuted, marginBottom: 2 }}>XP Total</p>
+            <p className="gradient-text-gold" style={{ fontSize: DS.font.xxl, fontWeight: 900 }}>{user.xp.toLocaleString()}</p>
+          </div>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: DS.font.xs, color: DS.colors.textMuted, marginBottom: 8 }}>
+          <span>{user.xp.toLocaleString()} XP</span>
+          <span>{Math.max(0, xpToNext - user.xp).toLocaleString()} para nível {user.lvl + 1}</span>
+        </div>
+        <XPBar current={user.xp} max={xpToNext} color={DS.colors.accent}/>
+      </div>
+
+      {/* Daily Goal */}
+      <Card>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <h3 style={{ fontSize: DS.font.md, fontWeight: 700 }}>Meta de hoje</h3>
+          <Badge color={DS.colors.green}>{doneCt}/{goals.length} ✓</Badge>
+        </div>
+        <XPBar current={doneCt} max={goals.length} color={DS.colors.green} height={4}/>
+        <div style={{ marginTop: 16 }}>
+          {goals.map((g, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < goals.length - 1 ? `1px solid ${DS.colors.border}` : 'none' }}>
+              <div style={{ width: 26, height: 26, borderRadius: DS.radius.sm, background: g.done ? DS.colors.green + '20' : DS.colors.surface, border: `2px solid ${g.done ? DS.colors.green : DS.colors.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: DS.colors.green, fontWeight: 700, flexShrink: 0 }}>{g.done ? '✓' : ''}</div>
+              <span style={{ flex: 1, fontSize: DS.font.sm, color: g.done ? DS.colors.textMuted : DS.colors.text, textDecoration: g.done ? 'line-through' : 'none' }}>{g.label}</span>
+              <Badge color={DS.colors.gold}>+{g.xp}</Badge>
+            </div>
           ))}
         </div>
-      );
+      </Card>
 
-      const sendChat = async () => {
-        if (!chatInput.trim() || isLoading) return;
-        const userMsg = chatInput.trim();
-        setChatInput("");
-        setMessages(prev => [...prev, { role: "user", text: userMsg }]);
-        setIsLoading(true);
-        try {
-          const res = await fetch("https://api.anthropic.com/v1/messages", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              model: "claude-sonnet-4-20250514",
-              max_tokens: 1000,
-              system: "You are Aria, a friendly English coach inside FluentAI app. The user is Brazilian. Always respond in English (2-3 sentences max). Gently correct grammar errors. End with a follow-up question. Use emojis occasionally.",
-              messages: messages.filter(m => m.role !== "system").map(m => ({ role: m.role === "ai" ? "assistant" : "user", content: m.text })).concat([{ role: "user", content: userMsg }])
-            })
-          });
-          const data = await res.json();
-          setMessages(prev => [...prev, { role: "ai", text: data.content?.[0]?.text || "Great! Keep going! 🎉" }]);
-        } catch {
-          setMessages(prev => [...prev, { role: "ai", text: "Let's try again! What were you saying? 😊" }]);
-        }
-        setIsLoading(false);
-      };
+      {/* Continue Lesson */}
+      <div className="card-hover" onClick={() => setScreen('lesson')} style={{ background: `linear-gradient(135deg, ${DS.colors.accent}20, ${DS.colors.accentDark}10)`, borderRadius: DS.radius.xxl, border: `1px solid ${DS.colors.accent}40`, padding: DS.space.xl, marginBottom: DS.space.md, cursor: 'pointer', boxShadow: `0 8px 32px ${DS.colors.accentGlow}` }}>
+        <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+          <div style={{ width: 56, height: 56, borderRadius: DS.radius.lg, background: DS.colors.accent + '25', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>🏠</div>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontSize: DS.font.xs, color: DS.colors.accentLight, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Foundation · Lição 3</p>
+            <p style={{ fontSize: DS.font.lg, fontWeight: 800, marginBottom: 8 }}>Everyday Objects</p>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <Badge color={DS.colors.blue}>8 min</Badge>
+              <Badge color={DS.colors.gold}>+75 XP</Badge>
+            </div>
+          </div>
+          <div style={{ width: 40, height: 40, borderRadius: DS.radius.full, background: DS.colors.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>▶</div>
+        </div>
+      </div>
 
-      // ONBOARDING
-      if (screen === "onboarding") {
-        const levels = [
-          { id: "beginner", label: "Iniciante", desc: "Nunca estudei inglês", emoji: "🌱", xpStart: 0, levelNum: 1 },
-          { id: "basic", label: "Básico", desc: "Sei algumas palavras e frases", emoji: "📖", xpStart: 500, levelNum: 4 },
-          { id: "intermediate", label: "Intermediário", desc: "Entendo mas tenho dificuldade de falar", emoji: "💬", xpStart: 1500, levelNum: 8 },
-          { id: "advanced", label: "Avançado", desc: "Falo bem mas quero mais fluência", emoji: "🚀", xpStart: 3000, levelNum: 14 },
-        ];
-        const chosenLevel = levels.find(l => l.id === selectedLevel);
+      {/* Stats */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: DS.space.md }}>
+        {[
+          { v: user.streak || 1, icon: '🔥', label: 'Dias seguidos', color: DS.colors.coral },
+          { v: 284, icon: '📝', label: 'Palavras', color: DS.colors.blue },
+          { v: '23m', icon: '⏱️', label: 'Hoje', color: DS.colors.green },
+          { v: '91%', icon: '🎯', label: 'Precisão', color: DS.colors.gold },
+        ].map((s, i) => (
+          <div key={i} className="fade-up" style={{ background: DS.colors.bgCard, borderRadius: DS.radius.xl, border: `1px solid ${DS.colors.border}`, padding: 18, animationDelay: `${i * 0.08}s` }}>
+            <div style={{ fontSize: 26, marginBottom: 8 }}>{s.icon}</div>
+            <p style={{ fontSize: DS.font.xxl, fontWeight: 900, color: s.color, marginBottom: 2 }}>{s.v}</p>
+            <p style={{ fontSize: DS.font.xs, color: DS.colors.textMuted }}>{s.label}</p>
+          </div>
+        ))}
+      </div>
 
+      {/* Achievements */}
+      <Card>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+          <h3 style={{ fontSize: DS.font.md, fontWeight: 700 }}>Conquistas</h3>
+          <span style={{ fontSize: DS.font.xs, color: DS.colors.accent, cursor: 'pointer' }}>Ver todas →</span>
+        </div>
+        <div style={{ display: 'flex', gap: 10 }}>
+          {ACHIEVEMENTS.map(a => (
+            <div key={a.id} style={{ flex: 1, background: a.earned ? DS.colors.gold + '10' : DS.colors.surface, borderRadius: DS.radius.lg, padding: '14px 8px', textAlign: 'center', border: `1px solid ${a.earned ? DS.colors.gold + '40' : DS.colors.border}`, opacity: a.earned ? 1 : 0.4 }}>
+              <div style={{ fontSize: 26, marginBottom: 6 }}>{a.icon}</div>
+              <p style={{ fontSize: 10, fontWeight: 700, color: a.earned ? DS.colors.gold : DS.colors.textFaint, lineHeight: 1.3 }}>{a.title}</p>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function LessonsScreen({ setScreen }) {
+  return (
+    <div style={{ height: '100%', overflowY: 'auto', padding: '0 20px 100px' }}>
+      <div style={{ paddingTop: 56, paddingBottom: 20 }}>
+        <h1 style={{ fontSize: DS.font.xxl, fontWeight: 900, marginBottom: 4 }}>Trilha de Aprendizado</h1>
+        <p style={{ fontSize: DS.font.sm, color: DS.colors.textMuted }}>Seu caminho para a fluência</p>
+      </div>
+
+      {PHASES.map((phase, pi) => {
+        const phaseLessons = LESSONS.filter(l => l.phase === phase.id);
         return (
-          <div style={{ ...S.container, display: "flex", flexDirection: "column", justifyContent: "center", minHeight: "100vh", padding: "40px 24px" }}>
-            {onboardStep === 0 && (
-              <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 72, marginBottom: 24 }}>🇺🇸</div>
-                <h1 style={{ fontSize: 36, fontWeight: 900, margin: "0 0 12px", letterSpacing: -1 }}>FluentAI</h1>
-                <p style={{ fontSize: 18, color: COLORS.textMuted, margin: "0 0 48px", lineHeight: 1.6 }}>Aprenda inglês de verdade com inteligência artificial</p>
-                <div style={{ marginBottom: 24 }}>
-                  <p style={{ fontSize: 14, color: COLORS.textMuted, marginBottom: 10, textAlign: "left" }}>Qual é o seu nome?</p>
-                  <input value={userName} onChange={e => setUserName(e.target.value)} placeholder="Digite seu nome..." style={{ width: "100%", background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: "16px 18px", fontSize: 16, color: COLORS.text, outline: "none" }} />
-                </div>
-                <button onClick={() => userName.trim() && setOnboardStep(1)} style={{ ...S.btn(), opacity: userName.trim() ? 1 : 0.4 }}>Continuar →</button>
-              </div>
-            )}
-            {onboardStep === 1 && (
-              <div>
-                <h2 style={{ fontSize: 26, fontWeight: 800, margin: "0 0 8px", textAlign: "center" }}>Olá, {userName}! 👋</h2>
-                <p style={{ fontSize: 16, color: COLORS.textMuted, textAlign: "center", margin: "0 0 32px", lineHeight: 1.6 }}>Qual é o seu nível de inglês?</p>
-                <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
-                  {levels.map(l => (
-                    <div key={l.id} onClick={() => setSelectedLevel(l.id)} style={{ background: selectedLevel === l.id ? COLORS.accent + "22" : COLORS.surface, borderRadius: 18, border: `2px solid ${selectedLevel === l.id ? COLORS.accent : COLORS.border}`, padding: "18px 20px", cursor: "pointer", display: "flex", alignItems: "center", gap: 16, transition: "all 0.2s" }}>
-                      <span style={{ fontSize: 32 }}>{l.emoji}</span>
-                      <div style={{ flex: 1 }}>
-                        <p style={{ fontSize: 16, fontWeight: 700, margin: "0 0 3px", color: selectedLevel === l.id ? COLORS.accentLight : COLORS.text }}>{l.label}</p>
-                        <p style={{ fontSize: 13, color: COLORS.textMuted, margin: 0 }}>{l.desc}</p>
-                      </div>
-                      {selectedLevel === l.id && <span style={{ color: COLORS.accent, fontSize: 22 }}>✓</span>}
-                    </div>
-                  ))}
-                </div>
-                <button onClick={() => { if (selectedLevel) { setXp(chosenLevel.xpStart); setLevel(chosenLevel.levelNum); setScreen("home"); } }} style={{ ...S.btn(), opacity: selectedLevel ? 1 : 0.4 }}>🚀 Começar agora!</button>
-              </div>
-            )}
-          </div>
-        );
-      }
-
-      // HOME
-      if (screen === "home") return (
-        <div style={S.container}>
-          <div style={S.header}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div>
-                <p style={{ fontSize: 13, color: COLORS.textMuted, margin: 0 }}>Bem-vindo, {userName} 👋</p>
-                <h2 style={{ fontSize: 22, fontWeight: 800, margin: "2px 0 0", letterSpacing: -0.5 }}>FluentAI</h2>
-              </div>
-              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, background: COLORS.surface, padding: "8px 14px", borderRadius: 50, border: `1px solid ${COLORS.border}` }}>
-                  <span>🔥</span><span style={{ fontWeight: 700, color: COLORS.gold }}>{streak}</span>
-                </div>
-                <div style={{ width: 42, height: 42, borderRadius: "50%", background: `linear-gradient(135deg, ${COLORS.accent}, ${COLORS.blue})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>😎</div>
-              </div>
-            </div>
-          </div>
-          <div style={S.scroll}>
-            <div style={{ background: `linear-gradient(135deg, ${COLORS.accent}22, ${COLORS.accentGlow})`, borderRadius: 20, border: `1px solid ${COLORS.accent}44`, padding: 20, marginBottom: 16 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                <div>
-                  <p style={{ fontSize: 12, color: COLORS.accentLight, margin: 0, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }}>Nível {level}</p>
-                  <h3 style={{ fontSize: 20, fontWeight: 800, margin: "4px 0 0" }}>{selectedLevel || "Beginner"}</h3>
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <p style={{ fontSize: 12, color: COLORS.textMuted, margin: 0 }}>XP Total</p>
-                  <p style={{ fontSize: 22, fontWeight: 800, color: COLORS.gold, margin: 0 }}>{xp.toLocaleString()}</p>
-                </div>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: COLORS.textMuted, marginBottom: 6 }}>
-                <span>{xp.toLocaleString()} XP</span>
-                <span>{(4000 - xp).toLocaleString()} para próximo nível</span>
-              </div>
-              <XPBar current={xp} max={4000} />
-            </div>
-
-            <div style={S.card}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>Meta de hoje</h3>
-                <Pill color={COLORS.green}>2/3 completas</Pill>
-              </div>
-              {[["Completar 1 lição", true, 50], ["Praticar speaking", true, 75], ["Revisar vocabulário", false, 25]].map(([label, done, xpv], i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: i < 2 ? `1px solid ${COLORS.border}` : "none" }}>
-                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: done ? COLORS.green + "22" : COLORS.surfaceLight, border: `2px solid ${done ? COLORS.green : COLORS.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, color: COLORS.green, fontWeight: 700 }}>{done ? "✓" : ""}</div>
-                  <span style={{ flex: 1, fontSize: 14, color: done ? COLORS.textMuted : COLORS.text, textDecoration: done ? "line-through" : "none" }}>{label}</span>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: COLORS.gold }}>+{xpv} XP</span>
-                </div>
-              ))}
-            </div>
-
-            <div style={S.card}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 14px" }}>Continuar aprendendo</h3>
-              <div style={{ background: COLORS.surfaceLight, borderRadius: 16, padding: 16, border: `1px solid ${COLORS.accent}33`, marginBottom: 14 }}>
-                <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
-                  <div style={{ width: 52, height: 52, borderRadius: 16, background: COLORS.accent + "22", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26 }}>🏠</div>
-                  <div style={{ flex: 1 }}>
-                    <p style={{ fontSize: 11, color: COLORS.accent, fontWeight: 600, margin: "0 0 3px", textTransform: "uppercase", letterSpacing: 0.5 }}>Foundation · Lição 3</p>
-                    <p style={{ fontSize: 16, fontWeight: 700, margin: "0 0 8px" }}>Everyday Objects</p>
-                    <div style={{ display: "flex", gap: 8 }}><Pill color={COLORS.blue}>8 min</Pill><Pill color={COLORS.gold}>+75 XP</Pill></div>
-                  </div>
-                </div>
-              </div>
-              <button style={S.btn()} onClick={() => setScreen("lesson")}>▶  Continuar lição</button>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
-              {[[streak,"🔥","Dias seguidos",COLORS.coral],[284,"📝","Palavras aprendidas",COLORS.blue],[23,"⏱️","Minutos hoje",COLORS.green],["91%","🎯","Precisão",COLORS.gold]].map(([value, icon, label, color], i) => (
-                <div key={i} style={{ background: COLORS.surface, borderRadius: 18, border: `1px solid ${COLORS.border}`, padding: 16 }}>
-                  <div style={{ fontSize: 24, marginBottom: 8 }}>{icon}</div>
-                  <p style={{ fontSize: 22, fontWeight: 800, color, margin: "0 0 3px" }}>{value}</p>
-                  <p style={{ fontSize: 12, color: COLORS.textMuted, margin: 0 }}>{label}</p>
-                </div>
-              ))}
-            </div>
-
-            <div style={S.card}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14 }}>
-                <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>Conquistas recentes</h3>
-                <span style={{ fontSize: 12, color: COLORS.accent, cursor: "pointer" }}>Ver todas</span>
-              </div>
-              <div style={{ display: "flex", gap: 10 }}>
-                {achievements.map(a => (
-                  <div key={a.id} style={{ flex: 1, background: COLORS.surfaceLight, borderRadius: 14, padding: "12px 8px", textAlign: "center", border: `1px solid ${a.earned ? COLORS.gold + "44" : COLORS.border}`, opacity: a.earned ? 1 : 0.5 }}>
-                    <div style={{ fontSize: 26, marginBottom: 4 }}>{a.icon}</div>
-                    <p style={{ fontSize: 10, fontWeight: 600, color: a.earned ? COLORS.gold : COLORS.textFaint, margin: 0 }}>{a.title}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-          <BottomNav />
-        </div>
-      );
-
-      // LESSONS
-      if (screen === "lessons") return (
-        <div style={S.container}>
-          <div style={S.header}>
-            <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Trilha de Aprendizado</h2>
-            <p style={{ fontSize: 13, color: COLORS.textMuted, margin: "4px 0 0" }}>Seu caminho para a fluência</p>
-          </div>
-          <div style={S.scroll}>
-            {["Foundation","Communication","Fluency","Advanced Mind"].map((phase, pi) => (
-              <div key={phase} style={{ marginBottom: 24 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: "50%", background: [COLORS.green,COLORS.blue,COLORS.accent,COLORS.gold][pi] }} />
-                  <span style={{ fontSize: 13, fontWeight: 700, color: [COLORS.green,COLORS.blue,COLORS.accent,COLORS.gold][pi], textTransform: "uppercase", letterSpacing: 1 }}>Fase {pi+1}: {phase}</span>
-                </div>
-                {lessons.filter(l => l.phase === phase).map(lesson => (
-                  <div key={lesson.id} onClick={() => !lesson.locked && setScreen("lesson")}
-                    style={{ background: lesson.current ? COLORS.accent + "11" : COLORS.surface, borderRadius: 20, border: `1px solid ${lesson.current ? COLORS.accent + "88" : COLORS.border}`, padding: 20, marginBottom: 10, opacity: lesson.locked ? 0.5 : 1, cursor: lesson.locked ? "not-allowed" : "pointer" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                      <div style={{ width: 50, height: 50, borderRadius: 15, background: lesson.completed ? COLORS.green + "22" : lesson.current ? COLORS.accent + "22" : COLORS.surfaceLight, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, border: `2px solid ${lesson.completed ? COLORS.green : lesson.current ? COLORS.accent : COLORS.border}` }}>
-                        {lesson.completed ? "✅" : lesson.locked ? "🔒" : lesson.icon}
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <p style={{ fontSize: 15, fontWeight: 700, margin: "0 0 5px" }}>{lesson.title}</p>
-                        <div style={{ display: "flex", gap: 8 }}>
-                          <Pill color={lesson.completed ? COLORS.green : COLORS.textMuted}>{lesson.completed ? "Completa" : lesson.current ? "Em andamento" : lesson.duration}</Pill>
-                          <Pill color={COLORS.gold}>+{lesson.xp} XP</Pill>
-                        </div>
-                      </div>
-                      {!lesson.locked && <span style={{ color: COLORS.textMuted, fontSize: 20 }}>›</span>}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-          <BottomNav />
-        </div>
-      );
-
-      // CHAT
-      if (screen === "chat") return (
-        <div style={S.container}>
-          <div style={S.header}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ width: 44, height: 44, borderRadius: 14, background: `linear-gradient(135deg, ${COLORS.accent}, ${COLORS.blue})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>🤖</div>
-              <div>
-                <h3 style={{ fontSize: 17, fontWeight: 700, margin: 0 }}>Aria — English Coach</h3>
-                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: "50%", background: COLORS.green }} />
-                  <span style={{ fontSize: 12, color: COLORS.textMuted }}>Always online</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div style={{ ...S.scroll, paddingBottom: 130, height: "calc(100vh - 160px)", overflowY: "auto" }}>
-            <div style={{ background: COLORS.surface, borderRadius: 14, padding: "12px 16px", marginBottom: 20, border: `1px solid ${COLORS.border}`, textAlign: "center" }}>
-              <p style={{ fontSize: 13, color: COLORS.textMuted, margin: 0 }}>💡 Fale em inglês! Aria vai corrigir suavemente seus erros.</p>
-            </div>
-            {messages.map((msg, i) => (
-              <div key={i} style={{ display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start", marginBottom: 14 }}>
-                {msg.role === "ai" && <div style={{ width: 32, height: 32, borderRadius: 10, background: `linear-gradient(135deg, ${COLORS.accent}, ${COLORS.blue})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, marginRight: 10, flexShrink: 0, alignSelf: "flex-end" }}>🤖</div>}
-                <div style={{ maxWidth: "78%", padding: "12px 16px", borderRadius: msg.role === "user" ? "18px 18px 4px 18px" : "18px 18px 18px 4px", background: msg.role === "user" ? COLORS.accent : COLORS.surface, fontSize: 15, lineHeight: 1.6, border: msg.role === "ai" ? `1px solid ${COLORS.border}` : "none" }}>
-                  {msg.text}
-                </div>
-              </div>
-            ))}
-            {isLoading && (
-              <div style={{ display: "flex", alignItems: "flex-end", gap: 10, marginBottom: 14 }}>
-                <div style={{ width: 32, height: 32, borderRadius: 10, background: `linear-gradient(135deg, ${COLORS.accent}, ${COLORS.blue})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>🤖</div>
-                <div style={{ padding: "14px 18px", borderRadius: "18px 18px 18px 4px", background: COLORS.surface, border: `1px solid ${COLORS.border}` }}>
-                  <div style={{ display: "flex", gap: 5 }}>
-                    {[0,1,2].map(j => <div key={j} style={{ width: 8, height: 8, borderRadius: "50%", background: COLORS.accent, animation: `bounce 1.2s ${j*0.2}s infinite` }} />)}
-                  </div>
-                </div>
-              </div>
-            )}
-            <div ref={chatEndRef} />
-          </div>
-          <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 430, background: COLORS.bg, borderTop: `1px solid ${COLORS.border}`, padding: "12px 16px 20px" }}>
-            <div style={{ display: "flex", gap: 8, marginBottom: 10, overflowX: "auto" }}>
-              {["How was your day?", "I need help with...", "Can we practice..."].map((s, i) => (
-                <button key={i} onClick={() => setChatInput(s)} style={{ fontSize: 12, padding: "6px 12px", borderRadius: 50, background: COLORS.surface, border: `1px solid ${COLORS.border}`, color: COLORS.textMuted, cursor: "pointer", whiteSpace: "nowrap" }}>{s}</button>
-              ))}
-            </div>
-            <div style={{ display: "flex", gap: 10 }}>
-              <input value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyDown={e => e.key === "Enter" && sendChat()} placeholder="Type in English..." style={{ flex: 1, background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: "14px 18px", fontSize: 15, color: COLORS.text, outline: "none" }} />
-              <button onClick={sendChat} disabled={isLoading} style={{ width: 52, height: 52, borderRadius: 16, background: COLORS.accent, border: "none", fontSize: 22, cursor: "pointer" }}>↑</button>
-            </div>
-          </div>
-        </div>
-      );
-
-      // VOCAB
-      if (screen === "vocab") return (
-        <div style={S.container}>
-          <div style={S.header}>
-            <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Vocabulário Contextual</h2>
-            <p style={{ fontSize: 13, color: COLORS.textMuted, margin: "4px 0 0" }}>Aprenda palavras em contexto real</p>
-          </div>
-          <div style={S.scroll}>
-            <div style={{ textAlign: "center", marginBottom: 24 }}>
-              <p style={{ fontSize: 13, color: COLORS.textMuted, marginBottom: 14 }}>Card {currentVocab+1} de {vocabCards.length} · Toque para revelar</p>
-              <div onClick={() => setCardFlipped(!cardFlipped)} style={{ background: cardFlipped ? COLORS.accent + "22" : COLORS.surface, borderRadius: 24, border: `1px solid ${cardFlipped ? COLORS.accent : COLORS.border}`, padding: "40px 24px", cursor: "pointer", minHeight: 200, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12 }}>
-                <span style={{ fontSize: 48 }}>{vocabCards[currentVocab].emoji}</span>
-                <h2 style={{ fontSize: 32, fontWeight: 900, margin: 0, color: cardFlipped ? COLORS.accentLight : COLORS.text }}>{vocabCards[currentVocab].word}</h2>
-                {cardFlipped ? (
-                  <>
-                    <p style={{ fontSize: 16, color: COLORS.text, fontStyle: "italic", margin: "8px 0 0", lineHeight: 1.6, textAlign: "center" }}>"{vocabCards[currentVocab].sentence}"</p>
-                    <div style={{ background: COLORS.surface, borderRadius: 12, padding: "10px 20px", marginTop: 8 }}>
-                      <p style={{ fontSize: 14, color: COLORS.gold, margin: 0, fontWeight: 600 }}>{vocabCards[currentVocab].translation}</p>
-                    </div>
-                  </>
-                ) : <p style={{ fontSize: 14, color: COLORS.textMuted, margin: 0 }}>Toque para ver no contexto</p>}
-              </div>
-              {cardFlipped && (
-                <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
-                  <button onClick={() => { setCardFlipped(false); setCurrentVocab(v => Math.max(0, v-1)); }} style={{ ...S.btn("ghost"), flex: 1 }}>👎 Difícil</button>
-                  <button onClick={() => { setCardFlipped(false); setCurrentVocab(v => (v+1) % vocabCards.length); }} style={{ ...S.btn(), flex: 1 }}>👍 Fácil</button>
-                </div>
-              )}
-            </div>
-
-            <div style={S.card}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                <div><h3 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 3px" }}>🎙️ Shadowing</h3><p style={{ fontSize: 13, color: COLORS.textMuted, margin: 0 }}>Repita e grave sua pronúncia</p></div>
-                <Pill color={COLORS.coral}>PRO</Pill>
-              </div>
-              <div style={{ background: COLORS.surfaceLight, borderRadius: 14, padding: 16, marginBottom: 14, border: `1px solid ${COLORS.border}` }}>
-                <p style={{ fontSize: 16, fontWeight: 600, margin: "0 0 8px", lineHeight: 1.5 }}>"{shadowingPhrases[0].text}"</p>
-                <p style={{ fontSize: 12, color: COLORS.accent, margin: 0, fontFamily: "monospace" }}>{shadowingPhrases[0].phonetic}</p>
-              </div>
-              <div style={{ display: "flex", gap: 10 }}>
-                <button style={{ ...S.btn("ghost"), flex: 1 }} onClick={() => setShadowingActive(!shadowingActive)}>{shadowingActive ? "⏹ Parar" : "▶ Ouvir"}</button>
-                <button style={{ ...S.btn(), flex: 1, background: shadowingActive ? COLORS.coral : COLORS.accent }}>🎙️ {shadowingActive ? "Gravando..." : "Gravar"}</button>
-              </div>
-            </div>
-
-            <div style={S.card}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 14px" }}>⏰ Revisão Espaçada</h3>
-              {[["Para revisar hoje", 12, COLORS.coral],["Revisados ontem", 8, COLORS.green],["Próximas (3 dias)", 23, COLORS.blue]].map(([label, count, color], i) => (
-                <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: i < 2 ? `1px solid ${COLORS.border}` : "none" }}>
-                  <span style={{ fontSize: 14 }}>{label}</span>
-                  <span style={{ fontWeight: 700, color, fontSize: 16 }}>{count}</span>
-                </div>
-              ))}
-              <button style={{ ...S.btn(), marginTop: 14 }}>Revisar agora (12)</button>
-            </div>
-          </div>
-          <BottomNav />
-        </div>
-      );
-
-      // RANKING
-      if (screen === "ranking") return (
-        <div style={S.container}>
-          <div style={S.header}>
-            <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>🏆 Ranking Semanal</h2>
-            <p style={{ fontSize: 13, color: COLORS.textMuted, margin: "4px 0 0" }}>Semana 21 · Reinicia em 3 dias</p>
-          </div>
-          <div style={S.scroll}>
-            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 12, marginBottom: 28, padding: "20px 0" }}>
-              {[rankingData[1], rankingData[0], rankingData[2]].map((user, i) => (
-                <div key={user.rank} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-                  <div style={{ width: 50, height: 50, borderRadius: "50%", background: `linear-gradient(135deg, ${COLORS.accent}, ${COLORS.blue})`, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 16, border: `3px solid ${["#C0C0C0","#FFD700","#CD7F32"][i]}` }}>{user.avatar}</div>
-                  <p style={{ fontSize: 12, fontWeight: 600, margin: 0 }}>{user.name}</p>
-                  <div style={{ width: 80, height: [140,170,120][i], background: COLORS.surface, borderRadius: "12px 12px 0 0", border: `1px solid ${COLORS.border}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4 }}>
-                    <span style={{ fontSize: 22 }}>{["🥈","🥇","🥉"][i]}</span>
-                    <span style={{ fontSize: 11, color: COLORS.textMuted }}>{user.xp.toLocaleString()}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div style={S.card}>
-              {rankingData.map((user, i) => (
-                <div key={user.rank} style={{ display: "flex", alignItems: "center", gap: 14, padding: "12px", marginBottom: 4, background: user.isUser ? COLORS.accent + "11" : "transparent", borderRadius: 12, border: user.isUser ? `1px solid ${COLORS.accent}33` : "none" }}>
-                  <div style={{ width: 32, textAlign: "center", fontWeight: 700, color: user.rank <= 3 ? COLORS.gold : COLORS.textMuted, fontSize: user.rank <= 3 ? 18 : 14 }}>
-                    {user.rank <= 3 ? ["🥇","🥈","🥉"][user.rank-1] : user.rank}
-                  </div>
-                  <div style={{ width: 40, height: 40, borderRadius: 13, background: user.isUser ? COLORS.accent : COLORS.surfaceLight, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14, border: user.isUser ? `2px solid ${COLORS.accent}` : `1px solid ${COLORS.border}` }}>{user.avatar}</div>
-                  <div style={{ flex: 1 }}>
-                    <p style={{ fontSize: 15, fontWeight: user.isUser ? 700 : 500, margin: "0 0 3px", color: user.isUser ? COLORS.accentLight : COLORS.text }}>{user.name}{user.isUser ? " (Você)" : ""}</p>
-                    <XPBar current={user.xp} max={5000} color={user.isUser ? COLORS.accent : COLORS.textFaint} />
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <p style={{ fontSize: 15, fontWeight: 700, color: COLORS.gold, margin: 0 }}>{user.xp.toLocaleString()}</p>
-                    <p style={{ fontSize: 11, color: COLORS.textMuted, margin: 0 }}>XP</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          <BottomNav />
-        </div>
-      );
-
-      // LESSON
-      if (screen === "lesson") {
-        const q = lessonQuestions[lessonStep];
-        return (
-          <div style={{ ...S.container, display: "flex", flexDirection: "column" }}>
-            <div style={{ ...S.header, display: "flex", alignItems: "center", gap: 14 }}>
-              <button onClick={() => setScreen("home")} style={{ background: "none", border: "none", color: COLORS.text, fontSize: 22, cursor: "pointer", padding: 0 }}>✕</button>
+          <div key={phase.id} style={{ marginBottom: 28 }} className="fade-up" style={{ animationDelay: `${pi * 0.1}s` }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, padding: '8px 14px', background: phase.color + '12', borderRadius: DS.radius.lg, border: `1px solid ${phase.color}25` }}>
+              <span style={{ fontSize: 18 }}>{phase.emoji}</span>
               <div style={{ flex: 1 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6, fontSize: 12, color: COLORS.textMuted }}>
-                  <span>Questão {lessonStep+1} de {lessonQuestions.length}</span>
-                  <span style={{ color: COLORS.gold, fontWeight: 600 }}>+75 XP</span>
-                </div>
-                <div style={{ height: 6, borderRadius: 10, background: COLORS.border, overflow: "hidden" }}>
-                  <div style={{ height: "100%", width: `${((lessonStep+1)/lessonQuestions.length)*100}%`, background: COLORS.accent, borderRadius: 10, transition: "width 0.5s" }} />
+                <span style={{ fontSize: DS.font.xs, fontWeight: 800, color: phase.color, textTransform: 'uppercase', letterSpacing: 1 }}>Fase {phase.id}: {phase.name}</span>
+                <p style={{ fontSize: 10, color: DS.colors.textMuted, marginTop: 1 }}>{phase.desc}</p>
+              </div>
+              {pi === 0 && <Badge color={phase.color}>Ativo</Badge>}
+              {pi > 0 && <span style={{ fontSize: 16 }}>🔒</span>}
+            </div>
+
+            {phaseLessons.map(lesson => (
+              <div key={lesson.id} className="card-hover" onClick={() => !lesson.locked && setScreen('lesson')}
+                style={{ background: lesson.current ? DS.colors.accent + '12' : DS.colors.bgCard, borderRadius: DS.radius.xl, border: `1px solid ${lesson.current ? DS.colors.accent + '50' : DS.colors.border}`, padding: DS.space.xl, marginBottom: 10, opacity: lesson.locked ? 0.45 : 1, cursor: lesson.locked ? 'not-allowed' : 'pointer', boxShadow: lesson.current ? `0 4px 20px ${DS.colors.accentGlow}` : 'none' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <div style={{ width: 52, height: 52, borderRadius: DS.radius.lg, background: lesson.done ? DS.colors.green + '20' : lesson.current ? DS.colors.accent + '20' : DS.colors.surface, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, border: `2px solid ${lesson.done ? DS.colors.green : lesson.current ? DS.colors.accent : DS.colors.border}`, flexShrink: 0 }}>
+                    {lesson.done ? '✅' : lesson.locked ? '🔒' : lesson.icon}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: DS.font.md, fontWeight: 700, marginBottom: 6, color: lesson.current ? DS.colors.accentLight : DS.colors.text }}>{lesson.title}</p>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                      <Badge color={lesson.done ? DS.colors.green : DS.colors.textMuted}>{lesson.done ? 'Completa ✓' : lesson.current ? 'Em andamento' : lesson.dur}</Badge>
+                      <Badge color={DS.colors.gold}>+{lesson.xp} XP</Badge>
+                    </div>
+                  </div>
+                  {!lesson.locked && <span style={{ color: DS.colors.textMuted, fontSize: 20, flexShrink: 0 }}>›</span>}
                 </div>
               </div>
-              <span style={{ fontSize: 14, color: COLORS.coral, fontWeight: 700 }}>❤️❤️❤️</span>
-            </div>
-            <div style={{ ...S.scroll, flex: 1 }}>
-              <div style={{ background: COLORS.surface, borderRadius: 16, padding: 16, border: `1px solid ${COLORS.border}`, marginBottom: 20, display: "flex", alignItems: "flex-start", gap: 12 }}>
-                <div style={{ width: 44, height: 44, borderRadius: 14, background: `linear-gradient(135deg, ${COLORS.accent}, ${COLORS.blue})`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 22 }}>🤖</div>
-                <p style={{ fontSize: 16, lineHeight: 1.6, margin: 0 }}>{q.question}</p>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {q.options.map((opt, i) => {
-                  let border = `1px solid ${COLORS.border}`, bg = COLORS.surface, color = COLORS.text;
-                  if (showResult) {
-                    if (i === q.correct) { border = `2px solid ${COLORS.green}`; bg = COLORS.green + "15"; color = COLORS.green; }
-                    else if (i === selectedAnswer) { border = `2px solid ${COLORS.coral}`; bg = COLORS.coral + "15"; color = COLORS.coral; }
-                  } else if (i === selectedAnswer) { border = `2px solid ${COLORS.accent}`; bg = COLORS.accent + "15"; }
-                  return (
-                    <button key={i} onClick={() => !showResult && setSelectedAnswer(i)} style={{ border, background: bg, color, borderRadius: 16, padding: "16px 20px", display: "flex", alignItems: "center", gap: 14, cursor: "pointer", transition: "all 0.2s", width: "100%" }}>
-                      <span style={{ width: 32, height: 32, borderRadius: 10, background: COLORS.surfaceLight, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, flexShrink: 0 }}>{["A","B","C","D"][i]}</span>
-                      <span style={{ fontSize: 15, fontWeight: 500, textAlign: "left" }}>{opt}</span>
-                      {showResult && i === q.correct && <span style={{ marginLeft: "auto" }}>✅</span>}
-                      {showResult && i === selectedAnswer && i !== q.correct && <span style={{ marginLeft: "auto" }}>❌</span>}
-                    </button>
-                  );
-                })}
-              </div>
-              {showResult && (
-                <div style={{ marginTop: 16, background: selectedAnswer === q.correct ? COLORS.green + "15" : COLORS.coral + "15", borderRadius: 16, padding: 16, border: `1px solid ${selectedAnswer === q.correct ? COLORS.green : COLORS.coral}44` }}>
-                  <p style={{ fontWeight: 700, color: selectedAnswer === q.correct ? COLORS.green : COLORS.coral, margin: "0 0 6px" }}>{selectedAnswer === q.correct ? "✨ Perfeito!" : "💡 Não foi dessa vez!"}</p>
-                  <p style={{ fontSize: 14, color: COLORS.text, margin: 0, lineHeight: 1.6 }}>{q.explanation}</p>
-                </div>
-              )}
-            </div>
-            <div style={{ padding: "12px 20px 30px", background: COLORS.bg, borderTop: `1px solid ${COLORS.border}` }}>
-              {!showResult ? (
-                <button disabled={selectedAnswer === null} onClick={() => setShowResult(true)} style={{ width: "100%", padding: 16, borderRadius: 16, border: "none", fontSize: 16, fontWeight: 700, cursor: selectedAnswer === null ? "not-allowed" : "pointer", background: COLORS.accent, color: "#fff", opacity: selectedAnswer === null ? 0.4 : 1 }}>Confirmar resposta</button>
-              ) : (
-                <button onClick={() => {
-                  if (lessonStep < lessonQuestions.length - 1) { setLessonStep(s => s+1); setSelectedAnswer(null); setShowResult(false); }
-                  else { setXp(x => x+75); setScreen("home"); setLessonStep(0); setSelectedAnswer(null); setShowResult(false); }
-                }} style={{ width: "100%", padding: 16, borderRadius: 16, border: "none", fontSize: 16, fontWeight: 700, cursor: "pointer", background: COLORS.accent, color: "#fff" }}>
-                  {lessonStep < lessonQuestions.length - 1 ? "Próxima questão →" : "🎉 Completar lição (+75 XP)"}
-                </button>
-              )}
-            </div>
+            ))}
           </div>
         );
-      }
+      })}
+    </div>
+  );
+}
 
-      return null;
+function ChatScreen() {
+  const [msgs, setMsgs] = useState([
+    { role: 'ai', text: "Hey! I'm Aria, your personal English coach 🤖\n\nI'm here to help you speak more naturally and confidently. Let's chat in English — I'll gently correct any mistakes.\n\nSo, tell me: what did you do today?" }
+  ]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState('teacher');
+  const endRef = useRef(null);
+
+  useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [msgs]);
+
+  const modes = [
+    { id: 'teacher', label: '👩‍🏫 Professor', sys: 'You are Aria, a warm English teacher. Correct errors gently inline. Keep responses 2-3 sentences. End with a question.' },
+    { id: 'friend', label: '😊 Amigo', sys: 'You are Aria, a friendly English-speaking friend. Keep it casual and fun. 2-3 sentences max. End with a question.' },
+    { id: 'business', label: '💼 Negócios', sys: 'You are Aria, a professional English coach for business. Focus on formal vocabulary and business expressions. 2-3 sentences. End with a question.' },
+    { id: 'travel', label: '✈️ Viagem', sys: 'You are Aria, a travel English coach. Simulate travel situations like airports, hotels, restaurants. 2-3 sentences. End with a question.' },
+  ];
+
+  const currentMode = modes.find(m => m.id === mode);
+
+  const send = async () => {
+    if (!input.trim() || loading) return;
+    const txt = input.trim();
+    setInput('');
+    setMsgs(prev => [...prev, { role: 'user', text: txt }]);
+    setLoading(true);
+    try {
+      const history = msgs.filter((_, i) => i > 0).map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.text }));
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514', max_tokens: 1000,
+          system: currentMode.sys + ' The user is Brazilian. Always respond in English. Never mention Anthropic or Claude.',
+          messages: [...history, { role: 'user', content: txt }]
+        })
+      });
+      const data = await res.json();
+      setMsgs(prev => [...prev, { role: 'ai', text: data.content?.[0]?.text || "Great! Keep going! 🎉" }]);
+    } catch {
+      setMsgs(prev => [...prev, { role: 'ai', text: "Oops! Let's try again 😊" }]);
     }
+    setLoading(false);
+  };
 
-    ReactDOM.createRoot(document.getElementById("root")).render(<FluentAI />);
-  </script>
+  return (
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      {/* Header */}
+      <div className="glass-dark" style={{ padding: '52px 20px 12px', borderBottom: `1px solid ${DS.colors.border}` }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+          <div style={{ width: 44, height: 44, borderRadius: DS.radius.lg, background: `linear-gradient(135deg, ${DS.colors.accent}, ${DS.colors.blue})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>🤖</div>
+          <div style={{ flex: 1 }}>
+            <h3 style={{ fontSize: DS.font.md, fontWeight: 700 }}>Aria</h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ width: 7, height: 7, borderRadius: '50%', background: DS.colors.green }} className="pulse"/>
+              <span style={{ fontSize: DS.font.xs, color: DS.colors.textMuted }}>English Coach • Online</span>
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 2 }}>
+          {modes.map(m => (
+            <button key={m.id} onClick={() => setMode(m.id)} style={{ padding: '6px 12px', borderRadius: DS.radius.full, border: `1px solid ${mode === m.id ? DS.colors.accent : DS.colors.border}`, background: mode === m.id ? DS.colors.accent + '20' : 'transparent', color: mode === m.id ? DS.colors.accentLight : DS.colors.textMuted, fontSize: DS.font.xs, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' }}>{m.label}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* Messages */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px' }}>
+        <div style={{ background: DS.colors.accent + '12', borderRadius: DS.radius.lg, padding: '10px 14px', marginBottom: 16, border: `1px solid ${DS.colors.accent}25` }}>
+          <p style={{ fontSize: DS.font.xs, color: DS.colors.accentLight, textAlign: 'center' }}>💡 Escreva em inglês — Aria vai corrigir com carinho</p>
+        </div>
+        {msgs.map((m, i) => (
+          <div key={i} style={{ display: 'flex', justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start', marginBottom: 14, alignItems: 'flex-end', gap: 8 }}>
+            {m.role === 'ai' && <div style={{ width: 30, height: 30, borderRadius: DS.radius.sm, background: `linear-gradient(135deg, ${DS.colors.accent}, ${DS.colors.blue})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, flexShrink: 0 }}>🤖</div>}
+            <div style={{ maxWidth: '78%', padding: '12px 16px', borderRadius: m.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px', background: m.role === 'user' ? `linear-gradient(135deg, ${DS.colors.accent}, ${DS.colors.accentDark})` : DS.colors.bgCard, fontSize: DS.font.sm, lineHeight: 1.7, border: m.role === 'ai' ? `1px solid ${DS.colors.border}` : 'none', whiteSpace: 'pre-wrap' }}>{m.text}</div>
+          </div>
+        ))}
+        {loading && (
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, marginBottom: 14 }}>
+            <div style={{ width: 30, height: 30, borderRadius: DS.radius.sm, background: `linear-gradient(135deg, ${DS.colors.accent}, ${DS.colors.blue})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>🤖</div>
+            <div style={{ padding: '14px 18px', borderRadius: '18px 18px 18px 4px', background: DS.colors.bgCard, border: `1px solid ${DS.colors.border}` }}>
+              <div style={{ display: 'flex', gap: 5 }}>
+                {[0,1,2].map(j => <div key={j} style={{ width: 7, height: 7, borderRadius: '50%', background: DS.colors.accent, animation: `bounce 1.2s ${j*0.2}s infinite` }}/>)}
+              </div>
+            </div>
+          </div>
+        )}
+        <div ref={endRef}/>
+      </div>
+
+      {/* Input */}
+      <div className="glass-dark" style={{ padding: '12px 16px 32px', borderTop: `1px solid ${DS.colors.border}` }}>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 10, overflowX: 'auto' }}>
+          {["How was your day?", "I need help with...", "Let's practice..."].map((s, i) => (
+            <button key={i} onClick={() => setInput(s)} style={{ padding: '6px 12px', borderRadius: DS.radius.full, border: `1px solid ${DS.colors.border}`, background: DS.colors.surface, color: DS.colors.textMuted, fontSize: DS.font.xs, cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' }}>{s}</button>
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && !e.shiftKey && send()} placeholder="Type in English..." style={{ flex: 1, background: DS.colors.bgCard, border: `1px solid ${input ? DS.colors.accent + '50' : DS.colors.border}`, borderRadius: DS.radius.lg, padding: '13px 16px', fontSize: DS.font.sm, color: DS.colors.text, outline: 'none', transition: 'border 0.2s' }}/>
+          <button onClick={send} disabled={loading || !input.trim()} style={{ width: 50, height: 50, borderRadius: DS.radius.lg, background: `linear-gradient(135deg, ${DS.colors.accent}, ${DS.colors.accentDark})`, border: 'none', fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 4px 16px ${DS.colors.accentGlow}`, flexShrink: 0, opacity: loading || !input.trim() ? 0.5 : 1, transition: 'opacity 0.2s' }}>↑</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function VocabScreen() {
+  const [idx, setIdx] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const card = VOCAB[idx];
+
+  return (
+    <div style={{ height: '100%', overflowY: 'auto', padding: '0 20px 100px' }}>
+      <div style={{ paddingTop: 56, paddingBottom: 20 }}>
+        <h1 style={{ fontSize: DS.font.xxl, fontWeight: 900, marginBottom: 4 }}>Vocabulário</h1>
+        <p style={{ fontSize: DS.font.sm, color: DS.colors.textMuted }}>Aprenda palavras em contexto real</p>
+      </div>
+
+      {/* Progress */}
+      <div style={{ display: 'flex', gap: 6, marginBottom: 20 }}>
+        {VOCAB.map((_, i) => <div key={i} style={{ flex: 1, height: 4, borderRadius: DS.radius.full, background: i <= idx ? DS.colors.accent : DS.colors.border, transition: 'all 0.3s' }}/>)}
+      </div>
+
+      {/* Flashcard */}
+      <div className="card-hover" onClick={() => setFlipped(!flipped)} style={{ background: flipped ? `linear-gradient(135deg, ${DS.colors.accent}20, ${DS.colors.blue}10)` : DS.colors.bgCard, borderRadius: DS.radius.xxl, border: `2px solid ${flipped ? DS.colors.accent + '50' : DS.colors.border}`, padding: 32, minHeight: 240, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 16, textAlign: 'center', transition: 'all 0.4s cubic-bezier(0.16,1,0.3,1)', boxShadow: flipped ? `0 8px 40px ${DS.colors.accentGlow}` : '0 4px 24px rgba(0,0,0,0.3)' }}>
+        <span style={{ fontSize: 52, marginBottom: 12 }}>{card.emoji}</span>
+        <Badge color={DS.colors.accentLight} size="sm">{card.lvl}</Badge>
+        <h2 className={flipped ? 'gradient-text' : ''} style={{ fontSize: DS.font.xxxl, fontWeight: 900, margin: '10px 0', letterSpacing: -1 }}>{card.word}</h2>
+        {flipped ? (
+          <div className="fade-in">
+            <p style={{ fontSize: DS.font.sm, color: DS.colors.textSoft, fontStyle: 'italic', lineHeight: 1.7, marginBottom: 12 }}>"{card.sent}"</p>
+            <div style={{ background: DS.colors.surface, borderRadius: DS.radius.lg, padding: '10px 20px', display: 'inline-block' }}>
+              <p style={{ fontSize: DS.font.sm, color: DS.colors.gold, fontWeight: 600 }}>{card.pt}</p>
+            </div>
+            <p style={{ fontSize: DS.font.xs, color: DS.colors.textMuted, marginTop: 8, fontFamily: 'monospace' }}>{card.ipa}</p>
+          </div>
+        ) : (
+          <p style={{ fontSize: DS.font.sm, color: DS.colors.textMuted, marginTop: 8 }}>Toque para revelar</p>
+        )}
+      </div>
+
+      {flipped && (
+        <div className="slide-up" style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
+          <Btn variant="ghost" onClick={() => { setFlipped(false); setIdx(i => Math.max(0, i - 1)); }} style={{ flex: 1 }}>👎 Difícil</Btn>
+          <Btn onClick={() => { setFlipped(false); setIdx(i => (i + 1) % VOCAB.length); }} style={{ flex: 1 }}>👍 Fácil</Btn>
+        </div>
+      )}
+
+      {/* Spaced Review */}
+      <Card>
+        <h3 style={{ fontSize: DS.font.md, fontWeight: 700, marginBottom: 16 }}>⏰ Revisão Espaçada</h3>
+        {[['Revisar hoje', 12, DS.colors.coral, '🔴'], ['Revisados', 8, DS.colors.green, '🟢'], ['Em 3 dias', 23, DS.colors.blue, '🔵']].map(([label, count, color, dot], i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 0', borderBottom: i < 2 ? `1px solid ${DS.colors.border}` : 'none' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 12 }}>{dot}</span>
+              <span style={{ fontSize: DS.font.sm }}>{label}</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontWeight: 800, color, fontSize: DS.font.md }}>{count}</span>
+              <span style={{ fontSize: DS.font.xs, color: DS.colors.textMuted }}>palavras</span>
+            </div>
+          </div>
+        ))}
+        <Btn onClick={() => {}} style={{ marginTop: 14 }}>Revisar agora (12)</Btn>
+      </Card>
+    </div>
+  );
+}
+
+function RankingScreen({ user }) {
+  const rankingWithUser = RANKING.map(r => r.isUser ? { ...r, xp: user.xp } : r).sort((a, b) => b.xp - a.xp).map((r, i) => ({ ...r, rank: i + 1 }));
+  const userRank = rankingWithUser.find(r => r.isUser);
+
+  return (
+    <div style={{ height: '100%', overflowY: 'auto', padding: '0 20px 100px' }}>
+      <div style={{ paddingTop: 56, paddingBottom: 20 }}>
+        <h1 style={{ fontSize: DS.font.xxl, fontWeight: 900, marginBottom: 4 }}>🏆 Ranking</h1>
+        <p style={{ fontSize: DS.font.sm, color: DS.colors.textMuted }}>Semana 21 · Reinicia em 3 dias</p>
+      </div>
+
+      {/* Your position */}
+      {userRank && (
+        <div style={{ background: `linear-gradient(135deg, ${DS.colors.accent}20, ${DS.colors.blue}10)`, borderRadius: DS.radius.xl, border: `1px solid ${DS.colors.accent}30`, padding: DS.space.xl, marginBottom: DS.space.md, textAlign: 'center' }}>
+          <p style={{ fontSize: DS.font.xs, color: DS.colors.textMuted, marginBottom: 4 }}>Sua posição</p>
+          <p style={{ fontSize: 48, fontWeight: 900, color: DS.colors.accentLight }}>#{userRank.rank}</p>
+          <p style={{ fontSize: DS.font.sm, color: DS.colors.textMuted }}>{user.xp.toLocaleString()} XP esta semana</p>
+        </div>
+      )}
+
+      {/* Podium */}
+      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 10, marginBottom: 24, padding: '16px 0' }}>
+        {[rankingWithUser[1], rankingWithUser[0], rankingWithUser[2]].filter(Boolean).map((u, i) => {
+          const heights = [130, 160, 110];
+          const medals = ['🥈', '🥇', '🥉'];
+          const colors = ['#C0C0C0', DS.colors.gold, '#CD7F32'];
+          return (
+            <div key={u.rank} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+              <Avatar initials={u.avatar} size={44} gradient={u.isUser}/>
+              <p style={{ fontSize: DS.font.xs, fontWeight: 700, color: u.isUser ? DS.colors.accentLight : DS.colors.textSoft, maxWidth: 70, textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.name}</p>
+              <div style={{ width: 74, height: heights[i], background: DS.colors.bgCard, borderRadius: '12px 12px 0 0', border: `1px solid ${DS.colors.border}`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                <span style={{ fontSize: 26 }}>{medals[i]}</span>
+                <span style={{ fontSize: DS.font.xs, color: DS.colors.textMuted }}>{u.xp.toLocaleString()}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Full list */}
+      <Card>
+        {rankingWithUser.map((u, i) => (
+          <div key={u.rank} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 10px', marginBottom: 4, background: u.isUser ? DS.colors.accent + '12' : 'transparent', borderRadius: DS.radius.lg, border: u.isUser ? `1px solid ${DS.colors.accent}30` : 'none' }}>
+            <div style={{ width: 28, textAlign: 'center', fontSize: u.rank <= 3 ? 18 : DS.font.sm, fontWeight: 700, color: u.rank <= 3 ? DS.colors.gold : DS.colors.textMuted, flexShrink: 0 }}>
+              {u.rank <= 3 ? ['🥇','🥈','🥉'][u.rank - 1] : u.rank}
+            </div>
+            <Avatar initials={u.avatar} size={38} gradient={u.isUser}/>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontSize: DS.font.sm, fontWeight: u.isUser ? 700 : 500, color: u.isUser ? DS.colors.accentLight : DS.colors.text, marginBottom: 4 }}>{u.name}{u.isUser ? ' (Você)' : ''}</p>
+              <XPBar current={u.xp} max={5000} color={u.isUser ? DS.colors.accent : DS.colors.textFaint} height={4}/>
+            </div>
+            <div style={{ textAlign: 'right', flexShrink: 0 }}>
+              <p style={{ fontSize: DS.font.md, fontWeight: 800, color: DS.colors.gold }}>{u.xp.toLocaleString()}</p>
+              <p style={{ fontSize: 10, color: DS.colors.textMuted }}>XP</p>
+            </div>
+          </div>
+        ))}
+      </Card>
+    </div>
+  );
+}
+
+function LessonScreen({ user, setUser, setScreen }) {
+  const [step, setStep] = useState(0);
+  const [sel, setSel] = useState(null);
+  const [done, setDone] = useState(false);
+  const [correct, setCorrect] = useState(0);
+  const q = QUIZ[step];
+  const progress = (step / QUIZ.length) * 100;
+
+  const confirm = () => {
+    if (sel === null) return;
+    const isCorrect = sel === q.correct;
+    if (isCorrect) setCorrect(c => c + 1);
+    setDone(true);
+  };
+
+  const next = () => {
+    if (step < QUIZ.length - 1) { setStep(s => s + 1); setSel(null); setDone(false); }
+    else {
+      const xpGain = 75 + (correct * 10);
+      setUser(u => ({ ...u, xp: u.xp + xpGain }));
+      setScreen('complete');
+    }
+  };
+
+  return (
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      {/* Header */}
+      <div style={{ padding: '52px 20px 16px', borderBottom: `1px solid ${DS.colors.border}` }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <button onClick={() => setScreen('lessons')} style={{ background: DS.colors.surface, border: `1px solid ${DS.colors.border}`, borderRadius: DS.radius.md, width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: DS.colors.textSoft, fontSize: 16, flexShrink: 0 }}>✕</button>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: DS.font.xs, color: DS.colors.textMuted, marginBottom: 8 }}>
+              <span>Questão {step + 1} de {QUIZ.length}</span>
+              <Badge color={DS.colors.gold}>+75 XP</Badge>
+            </div>
+            <XPBar current={step + (done ? 1 : 0)} max={QUIZ.length} color={DS.colors.accent} height={8}/>
+          </div>
+          <div style={{ display: 'flex', gap: 2, flexShrink: 0 }}>
+            {[0,1,2].map(i => <span key={i} style={{ fontSize: 16 }}>❤️</span>)}
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '20px 20px' }}>
+        {/* Question */}
+        <div style={{ display: 'flex', gap: 12, marginBottom: 24, padding: 16, background: DS.colors.bgCard, borderRadius: DS.radius.xl, border: `1px solid ${DS.colors.border}` }}>
+          <div style={{ width: 40, height: 40, borderRadius: DS.radius.lg, background: `linear-gradient(135deg, ${DS.colors.accent}, ${DS.colors.blue})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>🤖</div>
+          <p style={{ fontSize: DS.font.md, lineHeight: 1.6, alignSelf: 'center' }}>{q.q}</p>
+        </div>
+
+        {/* Options */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {q.opts.map((opt, i) => {
+            let bg = DS.colors.bgCard, border = `1px solid ${DS.colors.border}`, color = DS.colors.text;
+            if (done) {
+              if (i === q.correct) { bg = DS.colors.green + '15'; border = `2px solid ${DS.colors.green}`; color = DS.colors.green; }
+              else if (i === sel && i !== q.correct) { bg = DS.colors.coral + '15'; border = `2px solid ${DS.colors.coral}`; color = DS.colors.coral; }
+            } else if (i === sel) { bg = DS.colors.accent + '15'; border = `2px solid ${DS.colors.accent}`; }
+
+            return (
+              <div key={i} className="option-btn" onClick={() => !done && setSel(i)} style={{ background: bg, border, borderRadius: DS.radius.lg, padding: '15px 18px', display: 'flex', alignItems: 'center', gap: 14, cursor: done ? 'default' : 'pointer', transition: 'all 0.2s' }}>
+                <div style={{ width: 32, height: 32, borderRadius: DS.radius.sm, background: DS.colors.surface, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: DS.font.sm, fontWeight: 800, color, flexShrink: 0, border: `1px solid ${DS.colors.border}` }}>{['A','B','C','D'][i]}</div>
+                <span style={{ fontSize: DS.font.sm, fontWeight: 500, color, flex: 1 }}>{opt}</span>
+                {done && i === q.correct && <span style={{ fontSize: 18 }}>✅</span>}
+                {done && i === sel && i !== q.correct && <span style={{ fontSize: 18 }}>❌</span>}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Explanation */}
+        {done && (
+          <div className="slide-up" style={{ marginTop: 16, padding: 16, background: sel === q.correct ? DS.colors.green + '12' : DS.colors.coral + '12', borderRadius: DS.radius.xl, border: `1px solid ${sel === q.correct ? DS.colors.green : DS.colors.coral}30` }}>
+            <p style={{ fontWeight: 800, color: sel === q.correct ? DS.colors.green : DS.colors.coral, marginBottom: 6, fontSize: DS.font.sm }}>{sel === q.correct ? '✨ Perfeito! Você acertou!' : '💡 Quase lá!'}</p>
+            <p style={{ fontSize: DS.font.sm, color: DS.colors.textSoft, lineHeight: 1.6 }}>{q.exp}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div style={{ padding: '12px 20px 36px', borderTop: `1px solid ${DS.colors.border}` }}>
+        {!done ? (
+          <Btn onClick={confirm} disabled={sel === null}>Confirmar resposta</Btn>
+        ) : (
+          <Btn onClick={next}>{step < QUIZ.length - 1 ? 'Próxima questão →' : '🎉 Ver resultado'}</Btn>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CompleteScreen({ user, setScreen }) {
+  return (
+    <div className="fade-in" style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', textAlign: 'center' }}>
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: `radial-gradient(ellipse at center, ${DS.colors.accent}15 0%, transparent 70%)`, pointerEvents: 'none' }}/>
+      <div style={{ fontSize: 80, marginBottom: 20 }}>🎉</div>
+      <h1 style={{ fontSize: DS.font.xxxl, fontWeight: 900, marginBottom: 8, letterSpacing: -1 }}>Lição completa!</h1>
+      <p style={{ fontSize: DS.font.md, color: DS.colors.textMuted, marginBottom: 32, lineHeight: 1.6 }}>Você está evoluindo! Continue assim.</p>
+      <div style={{ display: 'flex', gap: 16, marginBottom: 40 }}>
+        {[['⚡', '+75 XP', DS.colors.gold], ['🎯', '91%', DS.colors.green], ['⏱️', '4 min', DS.colors.blue]].map(([icon, val, color], i) => (
+          <div key={i} style={{ background: DS.colors.bgCard, borderRadius: DS.radius.xl, border: `1px solid ${DS.colors.border}`, padding: '16px 20px', textAlign: 'center', minWidth: 90 }}>
+            <div style={{ fontSize: 24, marginBottom: 6 }}>{icon}</div>
+            <p style={{ fontSize: DS.font.lg, fontWeight: 900, color }}>{val}</p>
+          </div>
+        ))}
+      </div>
+      <div style={{ width: '100%', maxWidth: 360 }}>
+        <Btn onClick={() => setScreen('home')} className="glow-purple" style={{ marginBottom: 12 }}>🏠 Voltar ao início</Btn>
+        <Btn variant="secondary" onClick={() => setScreen('lessons')}>Ver próxima lição</Btn>
+      </div>
+    </div>
+  );
+}
+
+function BottomNav({ screen, setScreen }) {
+  const tabs = [
+    { id: 'home', icon: '🏠', label: 'Início' },
+    { id: 'lessons', icon: '📚', label: 'Lições' },
+    { id: 'chat', icon: '🤖', label: 'Aria' },
+    { id: 'vocab', icon: '🃏', label: 'Vocab' },
+    { id: 'ranking', icon: '🏆', label: 'Rank' },
+  ];
+  return (
+    <div className="glass-dark" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '8px 12px 24px', borderTop: `1px solid ${DS.colors.border}`, display: 'flex', zIndex: 100 }}>
+      {tabs.map(t => {
+        const active = screen === t.id;
+        return (
+          <button key={t.id} className="nav-item" onClick={() => setScreen(t.id)} style={{ flex: 1, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, padding: '8px 4px', position: 'relative' }}>
+            {active && <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 32, height: 2, borderRadius: 2, background: DS.colors.accent }}/>}
+            <span style={{ fontSize: 22, filter: active ? 'none' : 'grayscale(60%) opacity(0.6)', transition: 'filter 0.2s' }}>{t.icon}</span>
+            <span style={{ fontSize: 10, fontWeight: active ? 700 : 500, color: active ? DS.colors.accentLight : DS.colors.textMuted, transition: 'color 0.2s' }}>{t.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// ============================================================
+// APP ROOT
+// ============================================================
+function App() {
+  const [user, setUser] = useState(null);
+  const [screen, setScreen] = useState('home');
+
+  if (!user) return <Onboarding onFinish={data => setUser({ name: data.name, goal: data.goal, level: data.level, xp: data.xp, lvl: data.lvl, streak: 1 })}/>;
+
+  const showNav = !['lesson','complete'].includes(screen);
+
+  return (
+    <div style={{ width: '100%', maxWidth: 430, height: '100%', background: DS.colors.bg, position: 'relative', overflow: 'hidden' }}>
+      <div style={{ height: '100%', paddingBottom: showNav ? 80 : 0, overflow: 'hidden' }}>
+        {screen === 'home' && <HomeScreen user={user} setUser={setUser} setScreen={setScreen}/>}
+        {screen === 'lessons' && <LessonsScreen setScreen={setScreen}/>}
+        {screen === 'chat' && <ChatScreen/>}
+        {screen === 'vocab' && <VocabScreen/>}
+        {screen === 'ranking' && <RankingScreen user={user}/>}
+        {screen === 'lesson' && <LessonScreen user={user} setUser={setUser} setScreen={setScreen}/>}
+        {screen === 'complete' && <CompleteScreen user={user} setScreen={setScreen}/>}
+      </div>
+      {showNav && <BottomNav screen={screen} setScreen={setScreen}/>}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
 </body>
 </html>
